@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { KitchenProductsModule } from './warehouse/kitchen_products/kitchen_products.module';
+import { ProductsCategoriesModule } from './warehouse/products_categories/products_categories.module';
 
 @Module({
   imports: [
@@ -18,7 +20,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       synchronize: true,
     }),
 
-    AuthModule
+    AuthModule,
+
+    KitchenProductsModule,
+
+    ProductsCategoriesModule
   ],
   controllers: [],
   providers: [],

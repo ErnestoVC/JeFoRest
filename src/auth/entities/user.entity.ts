@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { ProductCategory } from '../../warehouse/products_categories/entities/product_category.entity';
 
 @Entity('users')
 export class User {
@@ -79,5 +80,21 @@ export class User {
     @JoinColumn({
         name: 'updated_by',
     })
-    udatedById? : User
+    updatedById? : User
+
+    @OneToMany(
+        () => ProductCategory,
+        (productsCategories) => productsCategories.user
+    )
+    productsCategories: ProductCategory
+
+    @BeforeInsert()
+    checkFieldsBeforeInsert() {
+        this.email = this.email.toLowerCase().trim();
+    }
+
+    @BeforeUpdate()
+    checkFieldsBeforeUpdate() {
+        this.checkFieldsBeforeInsert();   
+    }
 }
