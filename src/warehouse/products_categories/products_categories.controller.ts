@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CreateProductCategoryDto } from './dto/create_product_category';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '../../auth/entities/user.entity';
@@ -17,5 +17,11 @@ export class ProductsCategoriesController {
         @GetUser() user: User,
     ){
         return this.productoCategoryService.create(createProductCategoryDto, user);
+    }
+
+    @Get('getAll')
+    @Auth(ValidRoles.admin, ValidRoles.almacenero)
+    getAll(){
+        return this.productoCategoryService.getAll();
     }
 }

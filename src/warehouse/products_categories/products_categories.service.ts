@@ -20,42 +20,63 @@ export class ProductCategoryService {
     async create(createProductCategoryDto: CreateProductCategoryDto, user: User) {
 
         try {
-            const { parentProductCategoryId, ...productCategoriesDetails } = createProductCategoryDto;
+            const newProductCategory = createProductCategoryDto;
 
-            if (isUUID(parentProductCategoryId)) {
+            if (isUUID(newProductCategory.parentProductCategoryId)) {
 
-                const parente_category = await this.productCategoryRepository.findOneBy({ id: parentProductCategoryId })
+                const parente_category = await this.productCategoryRepository.findOneBy({ id: newProductCategory.parentProductCategoryId })
 
-                const productCategory = this.productCategoryRepository.create(
-                    {
-                        parentProductCategory: parente_category,
-                        ...productCategoriesDetails,
-                        user
-                    }
-                );
+                // const productCategory = this.productCategoryRepository.create(
+                //     {
+                //         parentProductCategory: parente_category,
+                //         ...productCategoriesDetails,
+                //         user
+                //     }
+                // );
 
-                await this.productCategoryRepository.save(productCategory);
+                const productCategory = new ProductCategory()
+                productCategory.categoryName = newProductCategory.categoryName;
+                productCategory.description = newProductCategory.description;
+                productCategory.parentProductCategory = parente_category;
+                productCategory.user = user
+
+                await this.dataSource.manager.save(productCategory)
+
+                //await this.productCategoryRepository.save(productCategory);
 
                 return { ...productCategory };
             } else {
-                const productCategory = this.productCategoryRepository.create(
-                    {
-                        parentProductCategory: null,
-                        ...productCategoriesDetails,
-                        user
-                    }
-                );
+                // const productCategory = this.productCategoryRepository.create(
+                //     {
+                //         parentProductCategory: null,
+                //         ...productCategoriesDetails,
+                //         user
+                //     }
+                // );
 
-                await this.productCategoryRepository.save(productCategory);
+                // await this.productCategoryRepository.save(productCategory);
+
+                const productCategory = new ProductCategory()
+                productCategory.categoryName = newProductCategory.categoryName;
+                productCategory.description = newProductCategory.description;
+                productCategory.parentProductCategory = null;
+                productCategory.user = user
+
+                await this.dataSource.manager.save(productCategory)
 
                 return { ...productCategory };
             }
 
-
-
         } catch (error) {
             this.handleDBExceptions(error)
         }
+    }
+
+    async getAll(){
+        const productsCategories = await this.dataSource.manager.getTreeRepository(ProductCategory).findTrees()
+
+        return productsCategories
+        
     }
 
     private handleDBExceptions(error: any) {

@@ -1,7 +1,8 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Tree, TreeChildren, TreeParent } from 'typeorm';
 import { User } from '../../../auth/entities/user.entity';
 
 @Entity({name:'products_categories'})
+@Tree('closure-table')
 export class ProductCategory {
     
     @PrimaryGeneratedColumn('uuid')
@@ -22,16 +23,10 @@ export class ProductCategory {
     })
     slug: string;
 
-    @ManyToOne(
-        () => ProductCategory,
-        productCategory => productCategory.childProductsCategories
-    )
+    @TreeParent()
     parentProductCategory: ProductCategory
 
-    @OneToMany(
-        () => ProductCategory,
-        productCategory => productCategory.parentProductCategory
-    )
+    @TreeChildren()
     childProductsCategories: ProductCategory[]
 
     @ManyToOne(
