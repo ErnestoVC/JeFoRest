@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto';
-import { JwtPayload } from './interfaces';
+import { JwtPayload } from '../../dist/auth/interfaces/jwt-payload-interface';
 
 @Injectable()
 export class AuthService {
