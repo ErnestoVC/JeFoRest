@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { validate as isUUID } from 'uuid'
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategory } from './entities/product_category.entity';
@@ -17,6 +17,17 @@ export class ProductCategoryService {
         private readonly dataSource: DataSource
     ) { }
 
+    private handleDBExceptions(error: any) {
+
+        if (error.code === '23505')
+            throw new BadRequestException(error.detail);
+
+        this.logger.error(error)
+        // console.log(error)
+        throw new InternalServerErrorException('Unexpected error, check server logs');
+
+    }
+
     async create(createProductCategoryDto: CreateProductCategoryDto, user: User) {
 
         try {
@@ -26,14 +37,6 @@ export class ProductCategoryService {
 
                 const parente_category = await this.productCategoryRepository.findOneBy({ id: newProductCategory.parentProductCategoryId })
 
-                // const productCategory = this.productCategoryRepository.create(
-                //     {
-                //         parentProductCategory: parente_category,
-                //         ...productCategoriesDetails,
-                //         user
-                //     }
-                // );
-
                 const productCategory = new ProductCategory()
                 productCategory.categoryName = newProductCategory.categoryName;
                 productCategory.description = newProductCategory.description;
@@ -42,20 +45,8 @@ export class ProductCategoryService {
 
                 await this.dataSource.manager.save(productCategory)
 
-                //await this.productCategoryRepository.save(productCategory);
-
                 return { ...productCategory };
             } else {
-                // const productCategory = this.productCategoryRepository.create(
-                //     {
-                //         parentProductCategory: null,
-                //         ...productCategoriesDetails,
-                //         user
-                //     }
-                // );
-
-                // await this.productCategoryRepository.save(productCategory);
-
                 const productCategory = new ProductCategory()
                 productCategory.categoryName = newProductCategory.categoryName;
                 productCategory.description = newProductCategory.description;
@@ -72,11 +63,11 @@ export class ProductCategoryService {
         }
     }
 
-    async getAll() {
+    async getAll(){
         const productsCategories = await this.dataSource.manager.getTreeRepository(ProductCategory).findTrees()
 
         return productsCategories
-
+<<<<<<< HEAD
     }
 
     async findOne(term: string) {
@@ -89,11 +80,11 @@ export class ProductCategoryService {
                 .where('products_categories.categoryName =:categoryName', {
                     categoryName: term,
                 })
-                .orWhere('products_categories.slug =:slug',{
+                .orWhere('products_categories.slug =:slug', {
                     slug: term,
                 })
                 .getOne();
-            
+
             console.log(productCategory);
         }
 
@@ -102,16 +93,21 @@ export class ProductCategoryService {
         }
 
         return productCategory;
+=======
+        
+>>>>>>> parent of e252f02 (Merge pull request #6 from ErnestoVC/2-listar-las-cateogorías-por-id-o-término)
     }
 
-    private handleDBExceptions(error: any) {
+    async deactivate(id: string){
 
-        if (error.code === '23505')
-            throw new BadRequestException(error.detail);
+        if(isUUID(id)){
 
-        this.logger.error(error)
-        // console.log(error)
-        throw new InternalServerErrorException('Unexpected error, check server logs');
-
+            const ProductCategory = await this.findOne(id)
+            await this.productCategoryRepository.update(id, {state: 0})
+            
+            return ProductCategory
+        } else{
+            throw new BadRequestException(`The id: ${id} does not exists`)
+        }
     }
 }

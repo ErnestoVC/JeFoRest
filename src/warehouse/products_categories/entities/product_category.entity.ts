@@ -36,6 +36,12 @@ export class ProductCategory {
     )
     user: User
 
+    @Column({
+        type: 'bit',
+        default: 1,
+    })
+    state: number;
+
     @BeforeInsert()
     checkSlugInsert() {
 

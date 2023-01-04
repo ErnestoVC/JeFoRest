@@ -4,7 +4,10 @@ import {
     MinLength,
     MaxLength,
     Matches,
-    IsNotEmpty
+    IsNotEmpty,
+    IsArray,
+    isNotEmpty,
+    IsIn
 } from "class-validator";
 
 export class CreateUserDto {
@@ -43,4 +46,7 @@ export class CreateUserDto {
     @MinLength(7)
     @MaxLength(18)
     document: string;
+
+    @IsNotEmpty()
+    roles: string[]
 }

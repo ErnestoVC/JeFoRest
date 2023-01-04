@@ -38,7 +38,6 @@ export class User {
 
     @Column('text', {
         array: true,
-        default: ['waiter']
     })
     roles: string[];
 
