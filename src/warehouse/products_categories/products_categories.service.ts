@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { validate as isUUID } from 'uuid'
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategory } from './entities/product_category.entity';
@@ -72,11 +72,36 @@ export class ProductCategoryService {
         }
     }
 
-    async getAll(){
+    async getAll() {
         const productsCategories = await this.dataSource.manager.getTreeRepository(ProductCategory).findTrees()
 
         return productsCategories
-        
+
+    }
+
+    async findOne(term: string) {
+        let productCategory: ProductCategory;
+
+        if (isUUID(term)) {
+            productCategory = await this.productCategoryRepository.findOneBy({ id: term });
+        } else {
+            productCategory = await this.productCategoryRepository.createQueryBuilder('products_categories')
+                .where('products_categories.categoryName =:categoryName', {
+                    categoryName: term,
+                })
+                .orWhere('products_categories.slug =:slug',{
+                    slug: term,
+                })
+                .getOne();
+            
+            console.log(productCategory);
+        }
+
+        if (!productCategory) {
+            throw new NotFoundException(`Product with ${term} not found`);
+        }
+
+        return productCategory;
     }
 
     private handleDBExceptions(error: any) {
