@@ -89,19 +89,37 @@ export class ProductCategoryService {
                 .where('products_categories.categoryName =:categoryName', {
                     categoryName: term,
                 })
-                .orWhere('products_categories.slug =:slug',{
+                .orWhere('products_categories.slug =:slug', {
                     slug: term,
                 })
                 .getOne();
-            
-            console.log(productCategory);
         }
 
         if (!productCategory) {
-            throw new NotFoundException(`Product with ${term} not found`);
+            throw new NotFoundException(`Product Category with ${term} not found`);
         }
 
         return productCategory;
+    }
+
+    async desActivate(id: string) {
+        const productCategory = await this.findOne(id);
+
+        switch (productCategory.state) {
+            case true:
+                await this.productCategoryRepository.update(id, { state: false })
+                return {
+                    message: `Product Category with id ${id} has been desactivate`
+                }
+                break;
+            case false:
+                await this.productCategoryRepository.update(id, { state: true })
+                return {
+                    message: `Product Category with id ${id} has been activated`
+                }
+            default:
+                throw new BadRequestException(`Product Category State only can be false or true`);
+        }
     }
 
     private handleDBExceptions(error: any) {
