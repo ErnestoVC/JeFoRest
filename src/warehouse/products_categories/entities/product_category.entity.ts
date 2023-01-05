@@ -36,6 +36,11 @@ export class ProductCategory {
     )
     user: User
 
+    @Column('bool', {
+        default: true
+    })
+    state: boolean
+
     @BeforeInsert()
     checkSlugInsert() {
 

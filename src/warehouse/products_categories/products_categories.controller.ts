@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateProductCategoryDto } from './dto/create_product_category';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '../../auth/entities/user.entity';
@@ -8,26 +8,32 @@ import { ValidRoles } from '../../auth/interfaces/valid-roles';
 
 @Controller('products-categories')
 export class ProductsCategoriesController {
-    constructor(private readonly productoCategoryService : ProductCategoryService){}
+    constructor(private readonly productoCategoryService: ProductCategoryService) { }
 
     @Post('create')
     @Auth(ValidRoles.admin, ValidRoles.almacenero)
     create(
-        @Body() createProductCategoryDto : CreateProductCategoryDto,
+        @Body() createProductCategoryDto: CreateProductCategoryDto,
         @GetUser() user: User,
-    ){
+    ) {
         return this.productoCategoryService.create(createProductCategoryDto, user);
     }
 
     @Get('getAll')
     @Auth(ValidRoles.admin, ValidRoles.almacenero)
-    getAll(){
+    getAll() {
         return this.productoCategoryService.getAll();
     }
 
     @Get(':term')
     @Auth(ValidRoles.admin, ValidRoles.almacenero)
-    findOne(@Param('term') term: string){
+    findOne(@Param('term') term: string) {
         return this.productoCategoryService.findOne(term);
+    }
+
+    @Patch('desActivate/:term')
+    @Auth(ValidRoles.admin, ValidRoles.almacenero)
+    desActivate(@Param('term') term: string) {
+        return this.productoCategoryService.desActivate(term);
     }
 }
